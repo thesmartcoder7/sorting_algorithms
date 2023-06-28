@@ -131,4 +131,3 @@ void sort_deck(deck_node_t **deck)
 	sort_suit(deck);
 	sort_by_val(deck);
 }
-
