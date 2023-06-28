@@ -1,135 +1,119 @@
 #include "deck.h"
-#include <stdio.h>
-
-void swap(deck_node_t **deck, deck_node_t *card_1, deck_node_t *card_2);
-void sort_suit(deck_node_t **deck);
-void sort_by_val(deck_node_t **deck);
-int card_val_compare(const card_t *card_1, const card_t *card_2);
-void sort_deck(deck_node_t **deck);
+#include "stdio.h"
 
 
 /**
- * swap - swaps 2 consecutive cards of a doubly linked list
- * Used in the insertion algorithm
- * @deck: Head node for the deck
- * @card_1: The first card to swap
- * @card_2: The second card to swap
+ * sort_deck - this Sorts a deck of cards represented
+ * as a doubly linked list.
+ * @deck: The doubly linked list representing the deck.
  */
-void swap(deck_node_t **deck, deck_node_t *card_1, deck_node_t *card_2)
-{
-	deck_node_t *prev, *next;
 
-	prev = card_1->prev;
-	next = card_2->next;
-
-	if (prev != NULL)
-		prev->next = card_2;
-	else
-		*deck = card_2;
-	card_1->prev = card_2;
-	card_1->next = next;
-	card_2->prev = prev;
-	card_2->next = card_1;
-	if (next)
-		next->prev = card_1;
-}
-
-
-
-/**
- * sort_suit - sorts a 52 card deck by suit
- * @deck: deck to sort
- */
-void sort_suit(deck_node_t **deck)
-{
-	deck_node_t *f, *tmp;
-
-	for (f = (*deck)->next; f && f->prev; f = f->next)
-	{
-		for (; f && f->prev && f->card->kind <
-			     f->prev->card->kind; f = f->prev)
-		{
-			tmp = f->prev;
-			swap(deck, tmp, f);
-			f = f->next;
-		}
-	}
-}
-
-
-/**
- * sort_by_val - sorts a 52 card deck staticly by value
- * @deck: deck to sort
- */
-void sort_by_val(deck_node_t **deck)
-{
-	deck_node_t *f, *tmp;
-
-	for (f = (*deck)->next; f && f->prev; f = f->next)
-	{
-		for (; f && f->prev && card_compare(f->card, f->prev->card) &&
-			     f->card->kind == f->prev->card->kind;
-		     f = f->prev)
-		{
-			tmp = f->prev;
-			swap(deck, tmp, f);
-			f = f->next;
-		}
-	}
-}
-
-
-
-/**
- * card_val_compare - compares 2 card values
- * @card_1: The first card to compare
- * @card_2: The second card to compare
- *
- * Description: compares two cards by their values
- * Return: 1 if less than, 0 if greater or equal to
- */
-int card_val_compare(const card_t *card_1, const card_t *card_2)
-{
-	char one = card_1->value[0], char2 = card_2->value[0];
-	const char *ord[14] = {"Ac", "1", "2", "3", "4", "5", "6",
-			       "7", "8", "9", "10", "Ja", "Qu", "Ki"};
-	int idx1 = 0, idx2 = 0, i;
-
-	if ((one >= 48 && one <= 57) && (char2 >= 49 &&
-					     char2 <= 57))
-	{
-		if (card_1->value[1] == '0')
-			one = 58;
-		if (card_2->value[1] == '0')
-			char2 = 58;
-		return (one < char2);
-	}
-	else
-	{
-		for (i = 0; i < 14; i++)
-		{
-			if (card_1->value[0] == ord[i][0] &&
-			    card_1->value[1] == ord[i][1])
-				idx1 = i;
-			if (card_2->value[0] == ord[i][0] &&
-			    card_2->value[1] == ord[i][1])
-				idx2 = i;
-		}
-		return (idx1 < idx2);
-	}
-}
-
-
-/**
- * sort_deck - sorts a 52 card deck
- * @deck: deck to sort
- *
- * Return: Always 0 (ok)
- */
 void sort_deck(deck_node_t **deck)
 {
-	if (deck == NULL || *deck == NULL)
-		return;
-	sort_suit(deck);
-	sort_by_val(deck);
+deck_node_t *sm_c;
+size_t length;
+deck_node_t *one, *two, *three, *four;
+
+length = list_length_deck(*deck);
+
+if (!deck || !*deck || length < 2)
+	return;
+
+sm_c = *deck;
+while (sm_c)
+{
+	if (sm_c->prev && card_val(sm_c) < card_val(sm_c->prev))
+	{
+		one = sm_c->prev->prev;
+		two = sm_c->prev;
+		three = sm_c;
+		four = sm_c->next;
+
+		two->next = four;
+		if (four)
+			four->prev = two;
+		three->next = two;
+		three->prev = one;
+		if (one)
+			one->next = three;
+		else
+			*deck = three;
+		two->prev = three;
+		sm_c = *deck;
+		continue;
+	}
+	else
+		sm_c = sm_c->next;
+}
+}
+
+/**
+ * card_val - Returns the value of a card in a deck.
+ * @node: The card in the deck.
+ *
+ * Return: value between 1 and 52
+ */
+
+int card_val(deck_node_t *node)
+{
+char *val[13] = {"Ace", "2", "3", "4", "5", "6",
+	"7", "8", "9", "10", "Jack", "Queen", "King"};
+char *kinds[4] = {"SPADE", "HEART", "CLUB", "DIAMOND"};
+int i, kind_val = 0;
+
+for (i = 1; i <= 13; i++)
+{
+	if (!str_cpy(node->card->value, val[i - 1]))
+		kind_val = i;
+}
+
+for (i = 1; i <= 4; i++)
+{
+	if (!str_cpy(kinds[node->card->kind], kinds[i - 1]))
+		kind_val = kind_val + (13 * i);
+}
+
+return (kind_val);
+}
+
+/**
+ * str_cpy - Compares two strings.
+ * @string_1: The first string to compare.
+ * @string_2: The second string to compare.
+ *
+ * Return: less than 0 if string_1 is less than string_2, 0 if they're equal,
+ * more than 0 if string_1 is greater than string_2
+ */
+
+int str_cpy(const char *string_1, const char *string_2)
+{
+while (*string_1 == *string_2)
+{
+	if (*string_1 == '\0')
+	{
+		return (0);
+	}
+	string_1++;
+	string_2++;
+}
+return (*string_1 - *string_2);
+}
+
+/**
+ * list_length_deck - Computes the lengthgth of a linked list.
+ * @list: head of list
+ *
+ * Return: lengthgth
+ */
+
+size_t list_length_deck(deck_node_t *list)
+{
+size_t length = 0;
+
+while (list)
+{
+	length++;
+	list = list->next;
+}
+return (length);
 }
