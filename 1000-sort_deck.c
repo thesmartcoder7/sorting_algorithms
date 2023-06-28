@@ -1,10 +1,11 @@
 #include "deck.h"
 #include <stdio.h>
 
-void sort_deck(deck_node_t **deck);
+void swap(deck_node_t **deck, deck_node_t *card_1, deck_node_t *card_2);
 void sort_suit(deck_node_t **deck);
 void sort_by_val(deck_node_t **deck);
 int card_val_compare(const card_t *card_1, const card_t *card_2);
+void sort_deck(deck_node_t **deck);
 
 
 /**
@@ -80,10 +81,11 @@ void sort_by_val(deck_node_t **deck)
 
 
 /**
- * card_compare - compares 2 card values
+ * card_val_compare - compares 2 card values
  * @card_1: The first card to compare
  * @card_2: The second card to compare
  *
+ * Description: compares two cards by their values
  * Return: 1 if less than, 0 if greater or equal to
  */
 int card_val_compare(const card_t *card_1, const card_t *card_2)
