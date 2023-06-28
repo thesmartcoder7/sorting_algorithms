@@ -1,51 +1,10 @@
 #include "deck.h"
 #include "stdio.h"
 
-
-/**
- * sort_deck - this Sorts a deck of cards represented
- * as a doubly linked list.
- * @deck: The doubly linked list representing the deck.
- */
-
-void sort_deck(deck_node_t **deck)
-{
-deck_node_t *sm_c;
-size_t length;
-deck_node_t *one, *two, *three, *four;
-
-length = list_length_deck(*deck);
-
-if (!deck || !*deck || length < 2)
-	return;
-
-sm_c = *deck;
-while (sm_c)
-{
-	if (sm_c->prev && card_val(sm_c) < card_val(sm_c->prev))
-	{
-		one = sm_c->prev->prev;
-		two = sm_c->prev;
-		three = sm_c;
-		four = sm_c->next;
-
-		two->next = four;
-		if (four)
-			four->prev = two;
-		three->next = two;
-		three->prev = one;
-		if (one)
-			one->next = three;
-		else
-			*deck = three;
-		two->prev = three;
-		sm_c = *deck;
-		continue;
-	}
-	else
-		sm_c = sm_c->next;
-}
-}
+int card_val(deck_node_t *node);
+int str_cpy(const char *string_1, const char *string_2);
+size_t list_length_deck(deck_node_t *list);
+void sort_deck(deck_node_t **deck);
 
 /**
  * card_val - Returns the value of a card in a deck.
@@ -116,4 +75,49 @@ while (list)
 	list = list->next;
 }
 return (length);
+}
+
+/**
+ * sort_deck - this Sorts a deck of cards represented
+ * as a doubly linked list.
+ * @deck: The doubly linked list representing the deck.
+ */
+
+void sort_deck(deck_node_t **deck)
+{
+deck_node_t *sm_c;
+size_t length;
+deck_node_t *one, *two, *three, *four;
+
+length = list_length_deck(*deck);
+
+if (!deck || !*deck || length < 2)
+	return;
+
+sm_c = *deck;
+while (sm_c)
+{
+	if (sm_c->prev && card_val(sm_c) < card_val(sm_c->prev))
+	{
+		one = sm_c->prev->prev;
+		two = sm_c->prev;
+		three = sm_c;
+		four = sm_c->next;
+
+		two->next = four;
+		if (four)
+			four->prev = two;
+		three->next = two;
+		three->prev = one;
+		if (one)
+			one->next = three;
+		else
+			*deck = three;
+		two->prev = three;
+		sm_c = *deck;
+		continue;
+	}
+	else
+		sm_c = sm_c->next;
+}
 }
